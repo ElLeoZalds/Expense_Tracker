@@ -50,20 +50,26 @@
                     </button>
 
                     <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
-                        <!-- Simulación de usuario (ID 1 hardcodeado por ahora) -->
+                        @auth
                         <div class="dropdown">
                             <button class="btn btn-outline-custom dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown">
                                 <div style="width: 32px; height: 32px; background: var(--et-primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
-                                    U
+                                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
                                 </div>
-                                <span class="d-none d-sm-inline">Usuario Demo</span>
+                                <span class="d-none d-sm-inline">{{ Auth::user()->name }}</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3">
-                                <li><a class="dropdown-item" href="#">Perfil</a></li>
+                                <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Perfil</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="#">Cerrar Sesión</a></li>
+                                <li>
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
+                                    </form>
+                                </li>
                             </ul>
                         </div>
+                        @endauth
                     </li>
                 </ul>
             </div>
