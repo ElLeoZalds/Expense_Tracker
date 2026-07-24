@@ -72,7 +72,7 @@ class DashboardController extends Controller
         $totalCategories = Category::where('user_id', $userId)->count();
         $totalExpenses = Expense::where('user_id', $userId)->count();
 
-        return view('dashboard.index', compact(
+        return view('dashboard', compact(
             'totalMonth',
             'totalYear',
             'totalCategories',
