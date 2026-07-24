@@ -130,7 +130,7 @@
             '#E74C3C', '#3498DB', '#2ECC71', '#F39C12'
         ];
 
-        new Chart(ctx, {
+        window.expensesChartInstance = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: {!! json_encode($chartLabels) !!},

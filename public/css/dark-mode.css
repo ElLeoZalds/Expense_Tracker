@@ -1,0 +1,245 @@
+/* =========================================
+   EXPENSE TRACKER - MODO OSCURO
+   Inspirado en GitHub Dark & Linear
+   ========================================= */
+
+[data-bs-theme="dark"] {
+    /* Paleta de Colores Dark Mode */
+    --et-bg-dark: #0d1117;          /* Fondo principal */
+    --et-surface-dark: #161b22;     /* Tarjetas y superficies */
+    --et-surface-hover: #1f262e;    /* Hover en elementos */
+    --et-border-dark: #30363d;      /* Bordes sutiles */
+    --et-text-primary: #f0f6fc;     /* Texto principal (blanco suave) */
+    --et-text-secondary: #8b949e;   /* Texto secundario (gris) */
+    
+    /* Colores de Acento Adaptados */
+    --et-primary-dark: #7c83ff;     /* Indigo más brillante */
+    --et-success-dark: #3fb950;
+    --et-warning-dark: #d29922;
+    --et-danger-dark: #f85149;
+}
+
+/* Transiciones Suaves Globales */
+body, .card, .navbar, .table, .btn, .form-control, .form-select, .dropdown-menu {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* =========================================
+   CUERPO Y FONDO
+   ========================================= */
+[data-bs-theme="dark"] body {
+    background-color: var(--et-bg-dark);
+    color: var(--et-text-primary);
+}
+
+/* =========================================
+   TARJETAS (CARDS)
+   ========================================= */
+[data-bs-theme="dark"] .card-custom,
+[data-bs-theme="dark"] .stat-card,
+[data-bs-theme="dark"] .card {
+    background-color: var(--et-surface-dark);
+    border: 1px solid var(--et-border-dark);
+    color: var(--et-text-primary);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .card-header-custom,
+[data-bs-theme="dark"] .card-header {
+    border-bottom-color: var(--et-border-dark);
+    color: var(--et-text-primary);
+}
+
+[data-bs-theme="dark"] .list-group-item {
+    background-color: transparent;
+    border-color: var(--et-border-dark);
+    color: var(--et-text-secondary);
+}
+
+[data-bs-theme="dark"] .list-group-item:hover {
+    background-color: var(--et-surface-hover);
+    color: var(--et-text-primary);
+}
+
+/* =========================================
+   NAVBAR
+   ========================================= */
+[data-bs-theme="dark"] .navbar-custom {
+    background-color: var(--et-surface-dark);
+    border-bottom: 1px solid var(--et-border-dark);
+}
+
+[data-bs-theme="dark"] .navbar-brand {
+    color: var(--et-primary-dark) !important;
+}
+
+[data-bs-theme="dark"] .nav-link {
+    color: var(--et-text-secondary) !important;
+}
+
+[data-bs-theme="dark"] .nav-link:hover,
+[data-bs-theme="dark"] .nav-link.active {
+    color: var(--et-primary-dark) !important;
+}
+
+[data-bs-theme="dark"] .dropdown-menu {
+    background-color: var(--et-surface-dark);
+    border: 1px solid var(--et-border-dark);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+[data-bs-theme="dark"] .dropdown-item {
+    color: var(--et-text-primary);
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover {
+    background-color: var(--et-surface-hover);
+    color: var(--et-primary-dark);
+}
+
+[data-bs-theme="dark"] .dropdown-divider {
+    border-top-color: var(--et-border-dark);
+}
+
+/* =========================================
+   TABLAS
+   ========================================= */
+[data-bs-theme="dark"] .table-custom thead th {
+    background-color: var(--et-surface-hover);
+    border-bottom-color: var(--et-border-dark);
+    color: var(--et-text-secondary);
+}
+
+[data-bs-theme="dark"] .table-custom tbody td {
+    border-bottom-color: var(--et-border-dark);
+    color: var(--et-text-primary);
+}
+
+[data-bs-theme="dark"] .table-custom tbody tr:hover {
+    background-color: var(--et-surface-hover);
+}
+
+/* =========================================
+   BOTONES
+   ========================================= */
+[data-bs-theme="dark"] .btn-primary-gradient {
+    background: linear-gradient(135deg, var(--et-primary-dark) 0%, #5b61e8 100%);
+    box-shadow: 0 4px 6px -1px rgba(124, 131, 255, 0.3);
+}
+
+[data-bs-theme="dark"] .btn-outline-custom {
+    border-color: var(--et-border-dark);
+    color: var(--et-text-secondary);
+}
+
+[data-bs-theme="dark"] .btn-outline-custom:hover {
+    border-color: var(--et-primary-dark);
+    color: var(--et-primary-dark);
+    background-color: rgba(124, 131, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* =========================================
+   FORMULARIOS
+   ========================================= */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: var(--et-bg-dark);
+    border-color: var(--et-border-dark);
+    color: var(--et-text-primary);
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    background-color: var(--et-surface-hover);
+    border-color: var(--et-primary-dark);
+    box-shadow: 0 0 0 3px rgba(124, 131, 255, 0.25);
+    color: var(--et-text-primary);
+}
+
+[data-bs-theme="dark"] .input-group-text {
+    background-color: var(--et-surface-hover);
+    border-color: var(--et-border-dark);
+    color: var(--et-text-secondary);
+}
+
+[data-bs-theme="dark"] ::placeholder {
+    color: var(--et-text-secondary);
+    opacity: 0.6;
+}
+
+/* =========================================
+   ALERTAS Y BADGES
+   ========================================= */
+[data-bs-theme="dark"] .alert-success {
+    background-color: rgba(63, 185, 80, 0.15);
+    border-color: rgba(63, 185, 80, 0.3);
+    color: var(--et-success-dark);
+}
+
+[data-bs-theme="dark"] .alert-danger {
+    background-color: rgba(248, 81, 73, 0.15);
+    border-color: rgba(248, 81, 73, 0.3);
+    color: var(--et-danger-dark);
+}
+
+[data-bs-theme="dark"] .alert-warning {
+    background-color: rgba(210, 153, 34, 0.15);
+    border-color: rgba(210, 153, 34, 0.3);
+    color: var(--et-warning-dark);
+}
+
+/* Badges Soft */
+[data-bs-theme="dark"] .badge-soft-primary { background-color: rgba(124, 131, 255, 0.15); color: var(--et-primary-dark); }
+[data-bs-theme="dark"] .badge-soft-success { background-color: rgba(63, 185, 80, 0.15); color: var(--et-success-dark); }
+[data-bs-theme="dark"] .badge-soft-warning { background-color: rgba(210, 153, 34, 0.15); color: var(--et-warning-dark); }
+[data-bs-theme="dark"] .badge-soft-danger { background-color: rgba(248, 81, 73, 0.15); color: var(--et-danger-dark); }
+
+/* =========================================
+   SCROLLBARS ESTILIZADAS (Webkit)
+   ========================================= */
+[data-bs-theme="dark"] ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+[data-bs-theme="dark"] ::-webkit-scrollbar-track {
+    background: var(--et-bg-dark);
+}
+
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--et-border-dark);
+    border-radius: 5px;
+}
+
+[data-bs-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--et-text-secondary);
+}
+
+/* =========================================
+   UTILIDADES EXTRA
+   ========================================= */
+[data-bs-theme="dark"] .text-muted {
+    color: var(--et-text-secondary) !important;
+}
+
+[data-bs-theme="dark"] .border-top {
+    border-top-color: var(--et-border-dark) !important;
+}
+
+[data-bs-theme="dark"] .empty-state-icon {
+    opacity: 0.3;
+}
+
+/* Animación del ícono del toggle */
+#theme-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+}
+
+#theme-toggle:hover #theme-icon {
+    transform: rotate(20deg) scale(1.1);
+}

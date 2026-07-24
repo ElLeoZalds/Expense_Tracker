@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-bs-theme="light" id="html-root">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,7 +22,6 @@
             <a class="navbar-brand" href="{{ route('dashboard') }}">
                 <span>💰</span> ExpenseTracker
             </a>
-            
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -44,6 +43,10 @@
                             Categorías
                         </a>
                     </li>
+                    <button id="theme-toggle" class="btn btn-sm btn-outline-secondary ms-2" title="Cambiar tema">
+                        <span id="theme-icon">🌙</span>
+                    </button>
+
                     <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
                         <!-- Simulación de usuario (ID 1 hardcodeado por ahora) -->
                         <div class="dropdown">
@@ -109,5 +112,6 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     @stack('scripts')
+    <script src="{{ asset('js/theme.js') }}"></script>
 </body>
 </html>
