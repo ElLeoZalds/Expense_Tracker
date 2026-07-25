@@ -1,18 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
+use App\Scopes\UserScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Modelo para las categorías de gastos
  */
 class Category extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /**
      * Los atributos que son asignables masivamente
@@ -27,6 +31,14 @@ class Category extends Model
     ];
 
     /**
+     * Boot del modelo para aplicar el scope global.
+     */
+    protected static function booted(): void
+    {
+        static::addGlobalScope(new UserScope());
+    }
+
+    /**
      * Los atributos que deben ser casteado
      *
      * @return array<string, string>
@@ -36,6 +48,7 @@ class Category extends Model
         return [
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
+            'deleted_at' => 'datetime',
         ];
     }
 
