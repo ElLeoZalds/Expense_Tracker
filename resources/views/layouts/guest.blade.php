@@ -35,8 +35,5 @@
                 {{ $slot }}
             </div>
         </div>
-
-        <!-- Theme Toggle Script -->
-        <script src="{{ asset('js/theme.js') }}"></script>
     </body>
 </html>

@@ -18,10 +18,14 @@ class ExpenseController extends Controller
      */
     public function index(): \Illuminate\Contracts\View\View
     {
-        $userId = Auth::id() ?? 1; // Hardcodear a 1 si no hay auth
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para ver tus gastos.');
+        }
 
         $expenses = Expense::with('category')
-            ->where('user_id', $userId)
+            ->where('user_id', $user->id)
             ->orderBy('date', 'desc')
             ->paginate(10);
 
@@ -33,8 +37,13 @@ class ExpenseController extends Controller
      */
     public function create(): \Illuminate\Contracts\View\View
     {
-        $userId = Auth::id() ?? 1;
-        $categories = Category::where('user_id', $userId)->get();
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para crear gastos.');
+        }
+
+        $categories = Category::where('user_id', $user->id)->get();
 
         return view('expenses.create', compact('categories'));
     }
@@ -44,6 +53,12 @@ class ExpenseController extends Controller
      */
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para crear gastos.');
+        }
+
         $validated = $request->validate([
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
@@ -52,7 +67,10 @@ class ExpenseController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        $userId = Auth::id() ?? 1;
+        // Verificar que la categoría pertenece al usuario
+        $category = Category::where('id', $validated['category_id'])
+            ->where('user_id', $user->id)
+            ->firstOrFail();
 
         Expense::create([
             'description' => $validated['description'],
@@ -60,7 +78,7 @@ class ExpenseController extends Controller
             'date' => $validated['date'],
             'category_id' => $validated['category_id'],
             'notes' => $validated['notes'] ?? null,
-            'user_id' => $userId,
+            'user_id' => $user->id,
         ]);
 
         return redirect()->route('expenses.index')
@@ -72,10 +90,14 @@ class ExpenseController extends Controller
      */
     public function show(Expense $expense): \Illuminate\Contracts\View\View
     {
-        $userId = Auth::id() ?? 1;
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para ver este gasto.');
+        }
 
         // Verificar que el expense pertenece al usuario
-        if ($expense->user_id !== $userId) {
+        if ($expense->user_id !== $user->id) {
             abort(403, 'No autorizado para ver este gasto.');
         }
 
@@ -87,14 +109,18 @@ class ExpenseController extends Controller
      */
     public function edit(Expense $expense): \Illuminate\Contracts\View\View
     {
-        $userId = Auth::id() ?? 1;
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para editar gastos.');
+        }
 
         // Verificar ownership
-        if ($expense->user_id !== $userId) {
+        if ($expense->user_id !== $user->id) {
             abort(403, 'No autorizado para editar este gasto.');
         }
 
-        $categories = Category::where('user_id', $userId)->get();
+        $categories = Category::where('user_id', $user->id)->get();
 
         return view('expenses.edit', compact('expense', 'categories'));
     }
@@ -104,10 +130,14 @@ class ExpenseController extends Controller
      */
     public function update(Request $request, Expense $expense): \Illuminate\Http\RedirectResponse
     {
-        $userId = Auth::id() ?? 1;
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para actualizar gastos.');
+        }
 
         // Verificar ownership
-        if ($expense->user_id !== $userId) {
+        if ($expense->user_id !== $user->id) {
             abort(403, 'No autorizado para actualizar este gasto.');
         }
 
@@ -118,6 +148,11 @@ class ExpenseController extends Controller
             'category_id' => 'required|exists:categories,id',
             'notes' => 'nullable|string',
         ]);
+
+        // Verificar que la categoría pertenece al usuario
+        $category = Category::where('id', $validated['category_id'])
+            ->where('user_id', $user->id)
+            ->firstOrFail();
 
         $expense->update($validated);
 
@@ -130,10 +165,14 @@ class ExpenseController extends Controller
      */
     public function destroy(Expense $expense): \Illuminate\Http\RedirectResponse
     {
-        $userId = Auth::id() ?? 1;
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para eliminar gastos.');
+        }
 
         // Verificar ownership
-        if ($expense->user_id !== $userId) {
+        if ($expense->user_id !== $user->id) {
             abort(403, 'No autorizado para eliminar este gasto.');
         }
 

@@ -18,10 +18,14 @@ class CategoryController extends Controller
      */
     public function index(): \Illuminate\Contracts\View\View
     {
-        $userId = Auth::id() ?? 1;
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para ver tus categorías.');
+        }
 
         $categories = Category::withCount('expenses')
-            ->where('user_id', $userId)
+            ->where('user_id', $user->id)
             ->orderBy('name')
             ->get();
 
@@ -41,19 +45,23 @@ class CategoryController extends Controller
      */
     public function store(Request $request): \Illuminate\Http\RedirectResponse
     {
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para crear categorías.');
+        }
+
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
             'icon' => 'nullable|string|max:10',
             'color' => 'nullable|string|max:7',
         ]);
 
-        $userId = Auth::id() ?? 1;
-
         Category::create([
             'name' => $validated['name'],
             'icon' => $validated['icon'] ?? null,
             'color' => $validated['color'] ?? null,
-            'user_id' => $userId,
+            'user_id' => $user->id,
         ]);
 
         return redirect()->route('categories.index')
@@ -65,9 +73,13 @@ class CategoryController extends Controller
      */
     public function show(Category $category): \Illuminate\Contracts\View\View
     {
-        $userId = Auth::id() ?? 1;
+        $user = Auth::user();
 
-        if ($category->user_id !== $userId) {
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para ver esta categoría.');
+        }
+
+        if ($category->user_id !== $user->id) {
             abort(403, 'No autorizado para ver esta categoría.');
         }
 
@@ -79,9 +91,13 @@ class CategoryController extends Controller
      */
     public function edit(Category $category): \Illuminate\Contracts\View\View
     {
-        $userId = Auth::id() ?? 1;
+        $user = Auth::user();
 
-        if ($category->user_id !== $userId) {
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para editar categorías.');
+        }
+
+        if ($category->user_id !== $user->id) {
             abort(403, 'No autorizado para editar esta categoría.');
         }
 
@@ -93,9 +109,13 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category): \Illuminate\Http\RedirectResponse
     {
-        $userId = Auth::id() ?? 1;
+        $user = Auth::user();
 
-        if ($category->user_id !== $userId) {
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para actualizar categorías.');
+        }
+
+        if ($category->user_id !== $user->id) {
             abort(403, 'No autorizado para actualizar esta categoría.');
         }
 
@@ -116,9 +136,13 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category): \Illuminate\Http\RedirectResponse
     {
-        $userId = Auth::id() ?? 1;
+        $user = Auth::user();
 
-        if ($category->user_id !== $userId) {
+        if (!$user) {
+            abort(401, 'Debes iniciar sesión para eliminar categorías.');
+        }
+
+        if ($category->user_id !== $user->id) {
             abort(403, 'No autorizado para eliminar esta categoría.');
         }
 
