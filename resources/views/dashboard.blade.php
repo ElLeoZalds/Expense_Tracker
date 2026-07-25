@@ -14,17 +14,32 @@
                 <h6 class="text-muted text-uppercase small">Gasto del Mes</h6>
                 <h2 class="display-6 fw-bold text-primary">${{ number_format($totalMonth, 2, '.', ',') }}</h2>
                 <small class="text-muted">{{ \Carbon\Carbon::now()->format('F Y') }}</small>
+
+                @if($percentageChange != 0)
+                    <div class="mt-2">
+                        @if($percentageChange > 0)
+                            <span class="badge bg-danger">
+                                <i class="bi bi-arrow-up"></i> {{ abs($percentageChange) }}%
+                            </span>
+                        @else
+                            <span class="badge bg-success">
+                                <i class="bi bi-arrow-down"></i> {{ abs($percentageChange) }}%
+                            </span>
+                        @endif
+                        <small class="text-muted ms-1">vs mes anterior</small>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 
-    <!-- Total Año Actual -->
+    <!-- Total Mes Anterior -->
     <div class="col-md-6 col-lg-3">
-        <div class="card border-success shadow-sm h-100">
+        <div class="card border-secondary shadow-sm h-100">
             <div class="card-body text-center">
-                <h6 class="text-muted text-uppercase small">Gasto del Año</h6>
-                <h2 class="display-6 fw-bold text-success">${{ number_format($totalYear, 2, '.', ',') }}</h2>
-                <small class="text-muted">{{ date('Y') }}</small>
+                <h6 class="text-muted text-uppercase small">Mes Anterior</h6>
+                <h2 class="display-6 fw-bold text-secondary">${{ number_format($previousMonthTotal, 2, '.', ',') }}</h2>
+                <small class="text-muted">{{ \Carbon\Carbon::now()->subMonth()->format('F Y') }}</small>
             </div>
         </div>
     </div>
@@ -52,17 +67,17 @@
     </div>
 </div>
 
-<!-- Gráfico y Últimos Gastos -->
+<!-- Gráficos y Últimos Gastos -->
 <div class="row g-4">
-    <!-- Espacio para gráfico -->
+    <!-- Gráfico de Evolución Diaria (Líneas) -->
     <div class="col-lg-7">
-        <div class="card shadow-sm h-100">
+        <div class="card shadow-sm mb-4">
             <div class="card-header bg-light">
-                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Gastos por Categoría (Año)</h5>
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Evolución Diaria - Mes Actual</h5>
             </div>
             <div class="card-body">
-                @if(count($chartData) > 0)
-                    <canvas id="expensesChart" height="200"></canvas>
+                @if(array_sum($dailyChartData) > 0)
+                    <canvas id="dailyChart" height="180"></canvas>
                 @else
                     <div class="text-center py-5">
                         <i class="bi bi-inbox display-4 text-muted"></i>
@@ -70,6 +85,23 @@
                         <a href="{{ route('expenses.create') }}" class="btn btn-primary btn-sm">
                             <i class="bi bi-plus-lg"></i> Registrar primer gasto
                         </a>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Gráfico por Categoría (Dona) -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Gastos por Categoría - Mes Actual</h5>
+            </div>
+            <div class="card-body">
+                @if(count($chartData) > 0)
+                    <canvas id="categoryChart" height="200"></canvas>
+                @else
+                    <div class="text-center py-4">
+                        <i class="bi bi-inbox display-4 text-muted"></i>
+                        <p class="mt-3 text-muted">No hay gastos por categoría este mes.</p>
                     </div>
                 @endif
             </div>
@@ -94,7 +126,7 @@
                                         {{ \Carbon\Carbon::parse($expense->date)->format('d/m/Y') }}
                                         @if($expense->category)
                                             · <span style="color: {{ $expense->category->color ?? '#6c757d' }}">
-                                                {{ $expense->category->name }}
+                                                <i class="bi {{ $expense->category->icon }}"></i> {{ $expense->category->name }}
                                             </span>
                                         @endif
                                     </small>
@@ -117,28 +149,38 @@
 @endsection
 
 @push('scripts')
-@if(count($chartData) > 0)
+@if(array_sum($dailyChartData) > 0 || count($chartData) > 0)
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        const ctx = document.getElementById('expensesChart').getContext('2d');
+        // Configuración común
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#6c757d';
 
-        // Colores para las categorías
-        const colors = [
-            '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
-            '#98D8C8', '#F7DC6F', '#BB8FCE', '#95A5A6',
-            '#E74C3C', '#3498DB', '#2ECC71', '#F39C12'
-        ];
+        // Gráfico de Evolución Diaria (Líneas)
+        @if(array_sum($dailyChartData) > 0)
+        const dailyCtx = document.getElementById('dailyChart').getContext('2d');
+        const dailyGradient = dailyCtx.createLinearGradient(0, 0, 0, 400);
+        dailyGradient.addColorStop(0, 'rgba(52, 152, 219, 0.3)');
+        dailyGradient.addColorStop(1, 'rgba(52, 152, 219, 0.01)');
 
-        window.expensesChartInstance = new Chart(ctx, {
-            type: 'doughnut',
+        new Chart(dailyCtx, {
+            type: 'line',
             data: {
-                labels: {!! json_encode($chartLabels) !!},
+                labels: {!! json_encode($dailyChartLabels) !!},
                 datasets: [{
-                    data: {!! json_encode($chartData) !!},
-                    backgroundColor: colors.slice(0, {!! count($chartLabels) !!}),
+                    label: 'Gasto ($)',
+                    data: {!! json_encode($dailyChartData) !!},
+                    borderColor: '#3498DB',
+                    backgroundColor: dailyGradient,
                     borderWidth: 2,
-                    borderColor: '#fff'
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 3,
+                    pointHoverRadius: 5,
+                    pointBackgroundColor: '#fff',
+                    pointBorderColor: '#3498DB',
+                    pointBorderWidth: 2
                 }]
             },
             options: {
@@ -146,15 +188,103 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom',
-                        labels: {
-                            usePointStyle: true,
-                            padding: 15
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return '$' + context.parsed.y.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Día del mes'
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
                         }
                     }
                 }
             }
         });
+        @endif
+
+        // Gráfico por Categoría (Dona)
+        @if(count($chartData) > 0)
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: {!! json_encode($chartLabels) !!},
+                datasets: [{
+                    data: {!! json_encode($chartData) !!},
+                    backgroundColor: {!! json_encode($chartColors) !!},
+                    borderWidth: 3,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 15,
+                            generateLabels: function(chart) {
+                                const data = chart.data;
+                                if (data.labels.length && data.datasets.length) {
+                                    return data.labels.map((label, i) => {
+                                        const value = data.datasets[0].data[i];
+                                        return {
+                                            text: label + ' ($' + value.toFixed(2) + ')',
+                                            fillStyle: data.datasets[0].backgroundColor[i],
+                                            strokeStyle: data.datasets[0].borderColor[i],
+                                            lineWidth: 2,
+                                            hidden: false,
+                                            index: i
+                                        };
+                                    });
+                                }
+                                return [];
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return label + ': $' + value.toFixed(2) + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        @endif
     </script>
 @endif
 @endpush

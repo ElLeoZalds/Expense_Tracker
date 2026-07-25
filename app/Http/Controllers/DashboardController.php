@@ -1,11 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
-use App\Models\Expense;
-use App\Models\Category;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
+use App\Services\DashboardService;
 
 /**
  * Controlador para el dashboard con estadísticas financieras.
@@ -14,72 +13,62 @@ class DashboardController extends Controller
 {
     /**
      * Muestra el dashboard con estadísticas del usuario.
-     * - Total gastado en el mes actual
-     * - Total gastado en el año actual
-     * - Gastos por categoría (para gráfico)
+     * Inyecta DashboardService para obtener todas las métricas.
+     */
+    public function __construct(
+        private readonly DashboardService $dashboardService
+    ) {
+    }
+
+    /**
+     * Muestra el dashboard con estadísticas del usuario.
+     * - Total gastado en el mes actual vs mes anterior
+     * - Gastos por categoría (para gráfico de dona)
+     * - Evolución diaria (para gráfico de líneas)
      * - Últimos 5 expenses recientes
      */
     public function index(): \Illuminate\Contracts\View\View
     {
-        $userId = Auth::id() ?? 1;
+        // Obtener datos del dashboard mediante el servicio
+        $dashboardData = $this->dashboardService->getDashboardData();
 
-        // Calcular fechas para consultas
-        $startOfMonth = Carbon::now()->startOfMonth();
-        $endOfMonth = Carbon::now()->endOfMonth();
-        $startOfYear = Carbon::now()->startOfYear();
-        $endOfYear = Carbon::now()->endOfYear();
+        // Extraer variables para la vista
+        $totalMonth = $dashboardData['current_month_total'];
+        $previousMonthTotal = $dashboardData['previous_month_total'];
+        $percentageChange = $dashboardData['percentage_change'];
+        $expensesByCategory = $dashboardData['expenses_by_category'];
+        $dailyChartLabels = $dashboardData['daily_chart_labels'];
+        $dailyChartData = $dashboardData['daily_chart_data'];
 
-        // Total gastado en el mes actual
-        $totalMonth = Expense::where('user_id', $userId)
-            ->whereBetween('date', [$startOfMonth, $endOfMonth])
-            ->sum('amount');
+        // Formatear datos para gráficos
+        $chartLabels = $expensesByCategory->pluck('name')->toArray();
+        $chartData = $expensesByCategory->pluck('total')->toArray();
+        $chartColors = $expensesByCategory->pluck('color')->toArray();
+        $chartIcons = $expensesByCategory->pluck('icon')->toArray();
 
-        // Total gastado en el año actual
-        $totalYear = Expense::where('user_id', $userId)
-            ->whereBetween('date', [$startOfYear, $endOfYear])
-            ->sum('amount');
-
-        // Gastos por categoría (para gráfico)
-        $expensesByCategory = Expense::select('category_id', 'amount')
-            ->where('user_id', $userId)
-            ->whereBetween('date', [$startOfYear, $endOfYear])
-            ->with('category')
-            ->get()
-            ->groupBy('category_id')
-            ->map(function ($items) {
-                return $items->sum('amount');
-            });
-
-        // Formatear datos para el gráfico
-        $chartLabels = [];
-        $chartData = [];
-        foreach ($expensesByCategory as $categoryId => $total) {
-            $category = Category::find($categoryId);
-            if ($category) {
-                $chartLabels[] = $category->name;
-                $chartData[] = $total;
-            }
-        }
-
-        // Últimos 5 expenses recientes
-        $recentExpenses = Expense::with('category')
-            ->where('user_id', $userId)
+        // Últimos 5 gastos recientes
+        $recentExpenses = \App\Models\Expense::with('category')
             ->orderBy('date', 'desc')
             ->limit(5)
             ->get();
 
-        // Contar total de categorías y gastos
-        $totalCategories = Category::where('user_id', $userId)->count();
-        $totalExpenses = Expense::where('user_id', $userId)->count();
+        // Contar total de categorías y gastos (ya filtrados por UserScope)
+        $totalCategories = \App\Models\Category::count();
+        $totalExpenses = \App\Models\Expense::count();
 
         return view('dashboard', compact(
             'totalMonth',
-            'totalYear',
+            'previousMonthTotal',
+            'percentageChange',
             'totalCategories',
             'totalExpenses',
             'recentExpenses',
             'chartLabels',
-            'chartData'
+            'chartData',
+            'chartColors',
+            'chartIcons',
+            'dailyChartLabels',
+            'dailyChartData'
         ));
     }
 }
