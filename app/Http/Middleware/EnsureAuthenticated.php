@@ -16,15 +16,15 @@ class EnsureAuthenticated
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             // Retornar 401 en lugar de permitir acceso con user_id = 1
             return response()->json([
                 'error' => 'No autorizado',
-                'message' => 'Debes iniciar sesión para acceder a este recurso.'
+                'message' => 'Debes iniciar sesión para acceder a este recurso.',
             ], 401);
         }
 

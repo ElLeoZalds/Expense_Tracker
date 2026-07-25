@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,17 +17,17 @@ class EnsureOwnership
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      * @param  string  $modelClass  La clase del modelo a verificar (ej: 'expense', 'category')
      */
     public function handle(Request $request, Closure $next, string $modelClass = ''): Response
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             return response()->json([
                 'error' => 'No autorizado',
-                'message' => 'Debes iniciar sesión para acceder a este recurso.'
+                'message' => 'Debes iniciar sesión para acceder a este recurso.',
             ], 401);
         }
 
@@ -36,12 +37,12 @@ class EnsureOwnership
         foreach ($routeParameters as $param) {
             if (is_object($param) && method_exists($param, 'getAttribute')) {
                 // Verificar si el modelo tiene user_id y pertenece al usuario actual
-                if (property_exists($param, 'user_id') || $param instanceof \Illuminate\Database\Eloquent\Model) {
+                if (property_exists($param, 'user_id') || $param instanceof Model) {
                     $model = $param;
                     if ($model->user_id !== $user->id) {
                         return response()->json([
                             'error' => 'Prohibido',
-                            'message' => 'No tienes permiso para acceder a este recurso.'
+                            'message' => 'No tienes permiso para acceder a este recurso.',
                         ], 403);
                     }
                 }

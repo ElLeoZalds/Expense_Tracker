@@ -17,13 +17,13 @@ class UserScope implements Scope
     /**
      * Aplica el scope a una consulta de Eloquent.
      *
-     * @param Builder<Model> $builder
+     * @param  Builder<Model>  $builder
      */
     #[Override]
     public function apply(Builder $builder, Model $model): void
     {
         if (Auth::check()) {
-            $builder->where($model->getTable() . '.user_id', Auth::id());
+            $builder->where($model->getTable().'.user_id', Auth::id());
         }
     }
 }

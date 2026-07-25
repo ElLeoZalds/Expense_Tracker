@@ -27,6 +27,7 @@ class BudgetAlertJob implements ShouldQueue
      * Umbrales de alerta.
      */
     public const THRESHOLD_WARNING = 80;
+
     public const THRESHOLD_EXCEEDED = 100;
 
     /**

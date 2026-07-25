@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
+use App\Models\Expense;
 use App\Services\DashboardService;
+use Illuminate\Contracts\View\View;
 
 /**
  * Controlador para el dashboard con estadísticas financieras.
@@ -17,8 +20,7 @@ class DashboardController extends Controller
      */
     public function __construct(
         private readonly DashboardService $dashboardService
-    ) {
-    }
+    ) {}
 
     /**
      * Muestra el dashboard con estadísticas del usuario.
@@ -27,7 +29,7 @@ class DashboardController extends Controller
      * - Evolución diaria (para gráfico de líneas)
      * - Últimos 5 expenses recientes
      */
-    public function index(): \Illuminate\Contracts\View\View
+    public function index(): View
     {
         // Obtener datos del dashboard mediante el servicio
         $dashboardData = $this->dashboardService->getDashboardData();
@@ -47,14 +49,14 @@ class DashboardController extends Controller
         $chartIcons = $expensesByCategory->pluck('icon')->toArray();
 
         // Últimos 5 gastos recientes
-        $recentExpenses = \App\Models\Expense::with('category')
+        $recentExpenses = Expense::with('category')
             ->orderBy('date', 'desc')
             ->limit(5)
             ->get();
 
         // Contar total de categorías y gastos (ya filtrados por UserScope)
-        $totalCategories = \App\Models\Category::count();
-        $totalExpenses = \App\Models\Expense::count();
+        $totalCategories = Category::count();
+        $totalExpenses = Expense::count();
 
         return view('dashboard', compact(
             'totalMonth',

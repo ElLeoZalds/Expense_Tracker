@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Expense;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
 
 class DashboardService
 {
@@ -19,7 +19,7 @@ class DashboardService
     public function getDashboardData(): array
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return $this->getEmptyData();
         }
 
@@ -55,7 +55,7 @@ class DashboardService
             ->groupBy('categories.id', 'categories.name', 'categories.color', 'categories.icon')
             ->orderByDesc('total')
             ->get()
-            ->map(fn($item) => [
+            ->map(fn ($item) => [
                 'name' => $item->name,
                 'color' => $item->color,
                 'icon' => $item->icon,

@@ -36,7 +36,7 @@ class Expense extends Model
      */
     protected static function booted(): void
     {
-        static::addGlobalScope(new UserScope());
+        static::addGlobalScope(new UserScope);
     }
 
     /**

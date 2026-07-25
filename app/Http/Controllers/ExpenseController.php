@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Expense;
 use App\Models\Category;
+use App\Models\Expense;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,11 +18,11 @@ class ExpenseController extends Controller
     /**
      * Lista todos los expenses del usuario autenticado con paginación.
      */
-    public function index(): \Illuminate\Contracts\View\View
+    public function index(): View
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para ver tus gastos.');
         }
 
@@ -35,11 +37,11 @@ class ExpenseController extends Controller
     /**
      * Muestra el formulario para crear un nuevo expense.
      */
-    public function create(): \Illuminate\Contracts\View\View
+    public function create(): View
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para crear gastos.');
         }
 
@@ -51,11 +53,11 @@ class ExpenseController extends Controller
     /**
      * Guarda un nuevo expense en la base de datos.
      */
-    public function store(Request $request): \Illuminate\Http\RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para crear gastos.');
         }
 
@@ -88,11 +90,11 @@ class ExpenseController extends Controller
     /**
      * Muestra los detalles de un expense específico.
      */
-    public function show(Expense $expense): \Illuminate\Contracts\View\View
+    public function show(Expense $expense): View
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para ver este gasto.');
         }
 
@@ -107,11 +109,11 @@ class ExpenseController extends Controller
     /**
      * Muestra el formulario para editar un expense existente.
      */
-    public function edit(Expense $expense): \Illuminate\Contracts\View\View
+    public function edit(Expense $expense): View
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para editar gastos.');
         }
 
@@ -128,11 +130,11 @@ class ExpenseController extends Controller
     /**
      * Actualiza un expense existente en la base de datos.
      */
-    public function update(Request $request, Expense $expense): \Illuminate\Http\RedirectResponse
+    public function update(Request $request, Expense $expense): RedirectResponse
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para actualizar gastos.');
         }
 
@@ -163,11 +165,11 @@ class ExpenseController extends Controller
     /**
      * Elimina un expense de la base de datos.
      */
-    public function destroy(Expense $expense): \Illuminate\Http\RedirectResponse
+    public function destroy(Expense $expense): RedirectResponse
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para eliminar gastos.');
         }
 

@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Expense;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,11 +17,11 @@ class CategoryController extends Controller
     /**
      * Lista todas las categorías del usuario con conteo de expenses.
      */
-    public function index(): \Illuminate\Contracts\View\View
+    public function index(): View
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para ver tus categorías.');
         }
 
@@ -35,7 +36,7 @@ class CategoryController extends Controller
     /**
      * Muestra el formulario para crear una nueva categoría.
      */
-    public function create(): \Illuminate\Contracts\View\View
+    public function create(): View
     {
         return view('categories.create');
     }
@@ -43,11 +44,11 @@ class CategoryController extends Controller
     /**
      * Guarda una nueva categoría en la base de datos.
      */
-    public function store(Request $request): \Illuminate\Http\RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para crear categorías.');
         }
 
@@ -71,11 +72,11 @@ class CategoryController extends Controller
     /**
      * Muestra los detalles de una categoría específica.
      */
-    public function show(Category $category): \Illuminate\Contracts\View\View
+    public function show(Category $category): View
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para ver esta categoría.');
         }
 
@@ -89,11 +90,11 @@ class CategoryController extends Controller
     /**
      * Muestra el formulario para editar una categoría existente.
      */
-    public function edit(Category $category): \Illuminate\Contracts\View\View
+    public function edit(Category $category): View
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para editar categorías.');
         }
 
@@ -107,11 +108,11 @@ class CategoryController extends Controller
     /**
      * Actualiza una categoría existente en la base de datos.
      */
-    public function update(Request $request, Category $category): \Illuminate\Http\RedirectResponse
+    public function update(Request $request, Category $category): RedirectResponse
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para actualizar categorías.');
         }
 
@@ -120,7 +121,7 @@ class CategoryController extends Controller
         }
 
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+            'name' => 'required|string|max:255|unique:categories,name,'.$category->id,
             'icon' => 'nullable|string|max:10',
             'color' => 'nullable|string|max:7',
         ]);
@@ -134,11 +135,11 @@ class CategoryController extends Controller
     /**
      * Elimina una categoría (solo si no tiene expenses asociados).
      */
-    public function destroy(Category $category): \Illuminate\Http\RedirectResponse
+    public function destroy(Category $category): RedirectResponse
     {
         $user = Auth::user();
 
-        if (!$user) {
+        if (! $user) {
             abort(401, 'Debes iniciar sesión para eliminar categorías.');
         }
 

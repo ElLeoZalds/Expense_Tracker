@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Database\Factories\BudgetFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Budget extends Model
 {
-    /** @use HasFactory<\Database\Factories\BudgetFactory> */
+    /** @use HasFactory<BudgetFactory> */
     use HasFactory, SoftDeletes;
 
     /**
@@ -47,7 +49,7 @@ class Budget extends Model
      */
     protected static function booted(): void
     {
-        static::addGlobalScope(new Scopes\UserScope());
+        static::addGlobalScope(new Scopes\UserScope);
     }
 
     /**
@@ -69,24 +71,24 @@ class Budget extends Model
     /**
      * Scope para filtrar por mes y año específicos.
      *
-     * @param \Illuminate\Database\Eloquent\Builder<$this> $query
+     * @param  Builder<$this>  $query
      */
     public function scopeForMonth(
-        \Illuminate\Database\Eloquent\Builder $query,
+        Builder $query,
         int $month,
         int $year
-    ): \Illuminate\Database\Eloquent\Builder {
+    ): Builder {
         return $query->where('month', $month)->where('year', $year);
     }
 
     /**
      * Scope para filtrar por el mes actual.
      *
-     * @param \Illuminate\Database\Eloquent\Builder<$this> $query
+     * @param  Builder<$this>  $query
      */
     public function scopeCurrentMonth(
-        \Illuminate\Database\Eloquent\Builder $query
-    ): \Illuminate\Database\Eloquent\Builder {
+        Builder $query
+    ): Builder {
         return $query->forMonth(now()->month, now()->year);
     }
 }

@@ -1,10 +1,24 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
-use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+
+Route::get('/downloads/{filename}', function (Request $request, string $filename) {
+    // Decodificar si es necesario y verificar autorización
+    $path = 'private/'.$filename;
+
+    if (! Storage::disk('local')->exists($path)) {
+        abort(404);
+    }
+
+    // Solo el dueño del archivo debería descargarlo (lógica extra recomendada)
+    return Storage::disk('local')->download($path);
+})->middleware('auth')->name('downloads.expenses');
 
 // Ruta pública
 Route::get('/', function () {
