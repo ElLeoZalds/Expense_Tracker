@@ -1,58 +1,191 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistema de Gestión de Gastos Personales
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Una aplicación web moderna para el seguimiento y gestión de gastos personales, construida con Laravel 11.
 
-## About Laravel
+## 📋 Descripción
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Este sistema permite a los usuarios:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Registrar gastos** con descripción, monto, fecha y categoría
+- **Gestionar categorías** personalizadas para organizar los gastos
+- **Establecer presupuestos** mensuales por categoría
+- **Exportar datos** a archivos descargables
+- **Auditoría completa** de todas las operaciones realizadas
+- **Visualizar estadísticas** en un dashboard interactivo
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🚀 Características Principales
 
-## Learning Laravel
+- ✅ Autenticación de usuarios segura
+- ✅ CRUD completo de gastos y categorías
+- ✅ Sistema de presupuestos mensuales
+- ✅ Exportación de datos a archivos
+- ✅ Logs de auditoría detallados (quién, qué, cuándo)
+- ✅ Soft deletes para recuperación de datos eliminados
+- ✅ Rate limiting para protección contra abuso
+- ✅ Verificación de propiedad de recursos
+- ✅ Interfaz responsive con Tailwind CSS
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 📦 Requisitos
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- PHP ^8.2
+- Composer
+- Node.js y NPM
+- Base de datos (MySQL, PostgreSQL, SQLite, etc.)
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## ⚙️ Instalación
 
-## Agentic Development
+1. **Clonar el repositorio:**
+   ```bash
+   git clone <url-del-repositorio>
+   cd <directorio-del-proyecto>
+   ```
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+2. **Instalar dependencias de PHP:**
+   ```bash
+   composer install
+   ```
 
+3. **Configurar variables de entorno:**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+4. **Configurar la base de datos** en el archivo `.env`:
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=tu_base_de_datos
+   DB_USERNAME=tu_usuario
+   DB_PASSWORD=tu_contraseña
+   ```
+
+5. **Ejecutar migraciones:**
+   ```bash
+   php artisan migrate
+   ```
+
+6. **Instalar dependencias de frontend y compilar assets:**
+   ```bash
+   npm install
+   npm run build
+   ```
+
+7. **Iniciar el servidor de desarrollo:**
+   ```bash
+   php artisan serve
+   ```
+
+La aplicación estará disponible en `http://localhost:8000`
+
+## 🛠️ Comandos Útiles
+
+### Desarrollo
 ```bash
-composer require laravel/boost --dev
+# Iniciar todos los servicios (servidor, cola, logs, vite)
+composer run dev
 
-php artisan boost:install
+# Solo servidor
+php artisan serve
+
+# Solo cola de trabajos
+php artisan queue:work
+
+# Compilar assets en modo desarrollo
+npm run dev
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+### Base de Datos
+```bash
+# Ejecutar migraciones
+php artisan migrate
 
-## Contributing
+# Revertir última migración
+php artisan migrate:rollback
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Resetear base de datos
+php artisan migrate:fresh --seed
+```
 
-## Code of Conduct
+### Testing
+```bash
+# Ejecutar tests
+composer run test
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Ejecutar tests con coverage
+php artisan test --coverage
+```
 
-## Security Vulnerabilities
+## 📁 Estructura del Proyecto
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+├── app/
+│   ├── Http/Controllers/     # Controladores (Expense, Category, Dashboard)
+│   ├── Models/               # Modelos (Expense, Category, Budget, User, AuditLog, FileExport)
+│   ├── Services/             # Lógica de negocio
+│   └── Policies/             # Políticas de autorización
+├── database/
+│   ├── migrations/           # Migraciones de base de datos
+│   └── seeders/              # Seeders para datos de prueba
+├── resources/
+│   ├── views/                # Plantillas Blade
+│   ├── css/                  # Estilos Tailwind
+│   └── js/                   # JavaScript
+├── routes/
+│   ├── web.php               # Rutas web
+│   └── auth.php              # Rutas de autenticación
+└── tests/                    # Tests automatizados
+```
 
-## License
+## 🗄️ Modelo de Datos
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Tablas Principales
+
+- **users**: Usuarios del sistema
+- **expenses**: Gastos registrados (con soft delete)
+- **categories**: Categorías de gastos (con soft delete)
+- **budgets**: Presupuestos mensuales por categoría
+- **file_exports**: Registro de archivos exportados
+- **audit_logs**: Log de auditoría de todas las operaciones
+- **cache & jobs**: Tablas del sistema Laravel
+
+## 🔐 Seguridad
+
+- Middleware de autenticación en todas las rutas protegidas
+- Rate limiting configurado por tipo de operación:
+  - 60 requests/minuto para operaciones de lectura
+  - 20 requests/minuto para creación/actualización
+  - 10 requests/minuto para eliminaciones
+- Verificación de propiedad de recursos
+- Protección CSRF habilitada
+
+## 🧪 Testing
+
+El proyecto incluye tests automatizados. Para ejecutarlos:
+
+```bash
+composer run test
+```
+
+## 📝 Licencia
+
+Este proyecto está licenciado bajo la [Licencia MIT](LICENSE).
+
+## 🤝 Contribuciones
+
+Las contribuciones son bienvenidas. Por favor:
+
+1. Haz fork del proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit tus cambios (`git commit -m 'Añadir nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request
+
+## 📞 Soporte
+
+Si encuentras algún bug o tienes sugerencias, por favor crea un issue en el repositorio.
+
+---
+
+Hecho con ❤️ usando Laravel 11
