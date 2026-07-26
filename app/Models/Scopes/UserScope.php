@@ -2,28 +2,25 @@
 
 declare(strict_types=1);
 
-namespace App\Scopes;
+namespace App\Models\Scopes;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Support\Facades\Auth;
 
-/**
- * Global Scope para filtrar automáticamente las consultas por el usuario autenticado.
- */
 class UserScope implements Scope
 {
     /**
-     * Aplica el scope a una consulta de Eloquent.
-     *
-     * @param  Builder<Model>  $builder
+     * Apply the scope to a given Eloquent query builder.
      */
-    #[Override]
     public function apply(Builder $builder, Model $model): void
     {
         if (Auth::check()) {
             $builder->where($model->getTable().'.user_id', Auth::id());
+        } else {
+            // Si no hay usuario autenticado, no devolver resultados
+            $builder->whereRaw('1 = 0');
         }
     }
 }

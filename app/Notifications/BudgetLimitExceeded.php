@@ -52,11 +52,11 @@ class BudgetLimitExceeded extends Notification implements ShouldQueue
         $categoryName = $this->budget->category?->name ?? 'General';
         $monthName = now()->setMonth($this->budget->month)->format('F');
 
-        return (new MailMessage())
+        return (new MailMessage)
             ->subject('⚠️ Alerta de Presupuesto Excedido')
             ->greeting('¡Hola!')
             ->line("Tu presupuesto para la categoría **{$categoryName}** ha superado el {$this->percentage}% del límite establecido.")
-            ->line("Límite: \$" . number_format((float) $this->budget->amount_limit, 2))
+            ->line('Límite: $'.number_format((float) $this->budget->amount_limit, 2))
             ->line("Mes: {$monthName} {$this->budget->year}")
             ->action('Ver Presupuestos', route('budgets.index'))
             ->line('Te recomendamos revisar tus gastos para evitar sobrepasar tu presupuesto.');
@@ -70,15 +70,17 @@ class BudgetLimitExceeded extends Notification implements ShouldQueue
      */
     public function toArray(object $notifiable): array
     {
+        $categoryName = $this->budget->category?->name ?? 'General';
+
         return [
             'budget_id' => $this->budget->id,
             'category_id' => $this->budget->category_id,
-            'category_name' => $this->budget->category?->name ?? 'General',
+            'category_name' => $categoryName,
             'amount_limit' => $this->budget->amount_limit,
             'percentage' => $this->percentage,
             'month' => $this->budget->month,
             'year' => $this->budget->year,
-            'message' => "El presupuesto para '{$this->budget->category?->name ?? 'General'}' ha superado el {$this->percentage}% del límite.",
+            'message' => "El presupuesto para '{$categoryName}' ha superado el {$this->percentage}% del límite.",
         ];
     }
 }
