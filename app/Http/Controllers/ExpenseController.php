@@ -29,6 +29,8 @@ class ExpenseController extends Controller
             abort(401, 'Debes iniciar sesión para ver tus gastos.');
         }
 
+        $this->authorize('viewAny', Expense::class);
+
         $expenses = Expense::with('category')
             ->orderBy('date', 'desc')
             ->paginate(10);
@@ -41,13 +43,15 @@ class ExpenseController extends Controller
      */
     public function create(): View
     {
+        $this->authorize('create', Expense::class);
+
         $user = Auth::user();
 
         if (! $user) {
             abort(401, 'Debes iniciar sesión para crear gastos.');
         }
 
-        $categories = Category::all();
+        $categories = Category::where('user_id', $user->id)->get();
 
         return view('expenses.create', compact('categories'));
     }
@@ -57,6 +61,8 @@ class ExpenseController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', Expense::class);
+
         $user = Auth::user();
 
         if (! $user) {
@@ -104,7 +110,13 @@ class ExpenseController extends Controller
     {
         $this->authorize('update', $expense);
 
-        $categories = Category::all();
+        $user = Auth::user();
+
+        if (! $user) {
+            abort(401, 'Debes iniciar sesión para editar gastos.');
+        }
+
+        $categories = Category::where('user_id', $user->id)->get();
 
         return view('expenses.edit', compact('expense', 'categories'));
     }

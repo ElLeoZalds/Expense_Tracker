@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 /**
  * Controlador para gestionar las categorías de gastos.
- * Implementa CRUD completo con validación de relaciones.
+ * Implementa CRUD completo con autorización mediante Policies.
  */
 class CategoryController extends Controller
 {
@@ -38,6 +38,8 @@ class CategoryController extends Controller
      */
     public function create(): View
     {
+        $this->authorize('create', Category::class);
+
         return view('categories.create');
     }
 
@@ -46,6 +48,8 @@ class CategoryController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $this->authorize('create', Category::class);
+
         $user = Auth::user();
 
         if (! $user) {
@@ -74,15 +78,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category): View
     {
-        $user = Auth::user();
-
-        if (! $user) {
-            abort(401, 'Debes iniciar sesión para ver esta categoría.');
-        }
-
-        if ($category->user_id !== $user->id) {
-            abort(403, 'No autorizado para ver esta categoría.');
-        }
+        $this->authorize('view', $category);
 
         return view('categories.show', compact('category'));
     }
@@ -92,15 +88,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category): View
     {
-        $user = Auth::user();
-
-        if (! $user) {
-            abort(401, 'Debes iniciar sesión para editar categorías.');
-        }
-
-        if ($category->user_id !== $user->id) {
-            abort(403, 'No autorizado para editar esta categoría.');
-        }
+        $this->authorize('update', $category);
 
         return view('categories.edit', compact('category'));
     }
@@ -110,15 +98,7 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category): RedirectResponse
     {
-        $user = Auth::user();
-
-        if (! $user) {
-            abort(401, 'Debes iniciar sesión para actualizar categorías.');
-        }
-
-        if ($category->user_id !== $user->id) {
-            abort(403, 'No autorizado para actualizar esta categoría.');
-        }
+        $this->authorize('update', $category);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,'.$category->id,
@@ -126,7 +106,8 @@ class CategoryController extends Controller
             'color' => 'nullable|string|max:7',
         ]);
 
-        $category->update($validated);
+        // Asignación explícita para prevenir Mass Assignment
+        $category->update($request->only(['name', 'icon', 'color']));
 
         return redirect()->route('categories.index')
             ->with('success', 'Categoría actualizada exitosamente.');
@@ -137,15 +118,7 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category): RedirectResponse
     {
-        $user = Auth::user();
-
-        if (! $user) {
-            abort(401, 'Debes iniciar sesión para eliminar categorías.');
-        }
-
-        if ($category->user_id !== $user->id) {
-            abort(403, 'No autorizado para eliminar esta categoría.');
-        }
+        $this->authorize('delete', $category);
 
         // Verificar si tiene expenses asociados
         if ($category->expenses()->count() > 0) {
