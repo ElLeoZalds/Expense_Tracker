@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Models\FileExport;
 use Illuminate\Http\Request;
@@ -14,6 +15,9 @@ use Illuminate\Support\Facades\Storage;
 // Nota: El middleware 'ownership' está disponible como respaldo, pero se recomienda
 // usar $this->authorize() directamente en los controladores para mayor claridad
 Route::middleware(['auth', 'throttle:60,1'])->group(function () {
+    // Dashboard - Vista principal con estadísticas
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
     // Operaciones de lectura - rate limit estándar (60/min)
     Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
     Route::get('/expenses/{expense}', [ExpenseController::class, 'show'])->name('expenses.show');

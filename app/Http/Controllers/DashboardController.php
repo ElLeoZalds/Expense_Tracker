@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Expense;
 use App\Services\DashboardService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Controlador para el dashboard con estadísticas financieras.
@@ -31,6 +32,13 @@ class DashboardController extends Controller
      */
     public function index(): View
     {
+        // Verificar que el usuario esté autenticado
+        if (! Auth::check()) {
+            abort(401, 'Debes iniciar sesión para ver el dashboard.');
+        }
+
+        $user = Auth::user();
+
         // Obtener datos del dashboard mediante el servicio
         $dashboardData = $this->dashboardService->getDashboardData();
 
@@ -48,15 +56,16 @@ class DashboardController extends Controller
         $chartColors = $expensesByCategory->pluck('color')->toArray();
         $chartIcons = $expensesByCategory->pluck('icon')->toArray();
 
-        // Últimos 5 gastos recientes
-        $recentExpenses = Expense::with('category')
+        // Últimos 5 gastos recientes - explícitamente filtrados por usuario autenticado
+        $recentExpenses = Expense::where('user_id', $user->id)
+            ->with('category')
             ->orderBy('date', 'desc')
             ->limit(5)
             ->get();
 
-        // Contar total de categorías y gastos (ya filtrados por UserScope)
-        $totalCategories = Category::count();
-        $totalExpenses = Expense::count();
+        // Contar total de categorías y gastos (explícitamente filtrados por usuario autenticado)
+        $totalCategories = Category::where('user_id', $user->id)->count();
+        $totalExpenses = Expense::where('user_id', $user->id)->count();
 
         return view('dashboard', compact(
             'totalMonth',
