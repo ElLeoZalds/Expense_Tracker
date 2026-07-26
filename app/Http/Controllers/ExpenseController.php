@@ -10,6 +10,7 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 /**
  * Controlador para gestionar los gastos (expenses) de la aplicación.
@@ -66,12 +67,12 @@ class ExpenseController extends Controller
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
             'date' => 'required|date',
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => [
+                'required',
+                Rule::exists('categories', 'id')->where(fn ($q) => $q->where('user_id', $user->id)),
+            ],
             'notes' => 'nullable|string',
         ]);
-
-        // Verificar que la categoría pertenece al usuario
-        $category = Category::findOrFail($validated['category_id']);
 
         Expense::create([
             'description' => $validated['description'],
@@ -119,11 +120,15 @@ class ExpenseController extends Controller
             'description' => 'required|string|max:255',
             'amount' => 'required|numeric|min:0.01',
             'date' => 'required|date',
-            'category_id' => 'required|exists:categories,id',
+            'category_id' => [
+                'required',
+                Rule::exists('categories', 'id')->where(fn ($q) => $q->where('user_id', auth()->id())),
+            ],
             'notes' => 'nullable|string',
         ]);
 
-        $expense->update($validated);
+        // Asignación explícita para prevenir Mass Assignment
+        $expense->update($request->only(['amount', 'description', 'category_id', 'date', 'notes']));
 
         return redirect()->route('expenses.index')
             ->with('success', 'Gasto actualizado exitosamente.');

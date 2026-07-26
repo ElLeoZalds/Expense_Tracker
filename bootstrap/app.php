@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\EnsureOwnership;
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -18,6 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Registrar middleware de ownership para verificación automática
         $middleware->alias([
             'ownership' => EnsureOwnership::class,
+        ]);
+
+        // Agregar cabeceras de seguridad HTTP globalmente para todas las rutas web
+        $middleware->web(append: [
+            SecurityHeaders::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

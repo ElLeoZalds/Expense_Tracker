@@ -236,4 +236,140 @@ class SecurityImprovementsTest extends TestCase
 
         $response->assertStatus(404);
     }
+
+    /**
+     * Test 1.9: Verifica que un usuario NO puede crear un expense con categoría de otro usuario
+     */
+    public function test_user_cannot_create_expense_with_another_users_category(): void
+    {
+        $user1 = User::create([
+            'name' => 'Usuario 1',
+            'email' => 'user1@expense.com',
+            'password' => bcrypt('password123'),
+        ]);
+
+        $user2 = User::create([
+            'name' => 'Usuario 2',
+            'email' => 'user2@expense.com',
+            'password' => bcrypt('password123'),
+        ]);
+
+        // Crear categoría para user1
+        $category1 = Category::create([
+            'user_id' => $user1->id,
+            'name' => 'Categoría Usuario 1',
+            'icon' => 'test',
+            'color' => '#FF0000',
+        ]);
+
+        // User2 intenta crear un expense usando la categoría de user1
+        $response = $this->actingAs($user2)->post(route('expenses.store'), [
+            'description' => 'Gasto malicioso',
+            'amount' => 100.00,
+            'date' => now()->toDateString(),
+            'category_id' => $category1->id, // Intenta usar categoría de otro usuario
+        ]);
+
+        // La validación debe fallar porque la categoría no pertenece a user2
+        $response->assertSessionHasErrors(['category_id']);
+
+        // Verificar que no se creó ningún expense
+        $this->assertDatabaseMissing('expenses', [
+            'description' => 'Gasto malicioso',
+            'category_id' => $category1->id,
+        ]);
+    }
+
+    /**
+     * Test 1.10: Verifica que un usuario SÍ puede crear expense con su propia categoría
+     */
+    public function test_user_can_create_expense_with_own_category(): void
+    {
+        $user = User::create([
+            'name' => 'Usuario Válido',
+            'email' => 'validuser@test.com',
+            'password' => bcrypt('password123'),
+        ]);
+
+        $category = Category::create([
+            'user_id' => $user->id,
+            'name' => 'Mi Categoría',
+            'icon' => 'check',
+            'color' => '#00FF00',
+        ]);
+
+        $response = $this->actingAs($user)->post(route('expenses.store'), [
+            'description' => 'Gasto válido',
+            'amount' => 50.00,
+            'date' => now()->toDateString(),
+            'category_id' => $category->id,
+        ]);
+
+        $response->assertRedirect(route('expenses.index'));
+        $this->assertDatabaseHas('expenses', [
+            'description' => 'Gasto válido',
+            'category_id' => $category->id,
+            'user_id' => $user->id,
+        ]);
+    }
+
+    /**
+     * Test 1.11: Verifica que un usuario NO puede actualizar un expense asignándolo a categoría de otro usuario
+     */
+    public function test_user_cannot_update_expense_to_another_users_category(): void
+    {
+        $user1 = User::create([
+            'name' => 'Usuario 1',
+            'email' => 'user1@update.com',
+            'password' => bcrypt('password123'),
+        ]);
+
+        $user2 = User::create([
+            'name' => 'Usuario 2',
+            'email' => 'user2@update.com',
+            'password' => bcrypt('password123'),
+        ]);
+
+        // Crear categorías para cada usuario
+        $category1 = Category::create([
+            'user_id' => $user1->id,
+            'name' => 'Categoría Usuario 1',
+            'icon' => 'test',
+            'color' => '#FF0000',
+        ]);
+
+        $category2 = Category::create([
+            'user_id' => $user2->id,
+            'name' => 'Categoría Usuario 2',
+            'icon' => 'test',
+            'color' => '#00FF00',
+        ]);
+
+        // Crear expense para user2 con su propia categoría
+        $expense = Expense::create([
+            'user_id' => $user2->id,
+            'category_id' => $category2->id,
+            'description' => 'Gasto original',
+            'amount' => 100.00,
+            'date' => now()->toDateString(),
+        ]);
+
+        // User2 intenta actualizar su expense asignándolo a la categoría de user1
+        $response = $this->actingAs($user2)->put(route('expenses.update', $expense->id), [
+            'description' => 'Gasto modificado',
+            'amount' => 150.00,
+            'date' => now()->toDateString(),
+            'category_id' => $category1->id, // Intenta usar categoría de otro usuario
+        ]);
+
+        // La validación debe fallar
+        $response->assertSessionHasErrors(['category_id']);
+
+        // Verificar que el expense no cambió
+        $this->assertDatabaseHas('expenses', [
+            'id' => $expense->id,
+            'description' => 'Gasto original',
+            'category_id' => $category2->id,
+        ]);
+    }
 }

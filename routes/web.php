@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
-// TUS RUTAS DE NEGOCIO (agregar estas)
-Route::middleware(['auth', 'ownership'])->group(function () {
+// Rutas protegidas con autenticación, ownership y rate limiting
+Route::middleware(['auth', 'ownership', 'throttle:60,1'])->group(function () {
     Route::resource('expenses', ExpenseController::class);
     Route::resource('categories', CategoryController::class);
 });
@@ -41,6 +41,6 @@ Route::get('/downloads/{filename}', function (Request $request, string $filename
     }
 
     return Storage::disk($disk)->download($path, $fileExport->original_filename ?? $filename);
-})->middleware('auth')->name('downloads.expenses');
+})->middleware(['auth', 'throttle:20,1'])->name('downloads.expenses');
 
 require __DIR__.'/auth.php';

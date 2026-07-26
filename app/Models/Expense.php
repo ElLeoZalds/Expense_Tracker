@@ -18,18 +18,12 @@ class Expense extends Model
     use HasFactory, SoftDeletes;
 
     /**
-     * Los atributos que son asignables masivamente
+     * Los atributos que NO son asignables masivamente.
+     * Se usa $guarded vacío porque la asignación se hace explícitamente en el controlador.
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'description',
-        'amount',
-        'date',
-        'category_id',
-        'user_id',
-        'notes',
-    ];
+    protected $guarded = [];
 
     /**
      * Boot del modelo para aplicar el scope global.
