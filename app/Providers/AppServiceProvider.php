@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\AuditLog;
 use App\Models\Budget;
 use App\Models\Category;
 use App\Models\Expense;
+use App\Observers\AuditObserver;
 use App\Policies\BudgetPolicy;
 use App\Policies\CategoryPolicy;
 use App\Policies\ExpensePolicy;
@@ -34,6 +36,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
         $this->configureRateLimiters();
+        $this->registerObservers();
     }
 
     /**
@@ -44,6 +47,15 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Category::class, CategoryPolicy::class);
         Gate::policy(Expense::class, ExpensePolicy::class);
         Gate::policy(Budget::class, BudgetPolicy::class);
+    }
+
+    /**
+     * Registra los observers para auditoría.
+     */
+    protected function registerObservers(): void
+    {
+        Expense::observe(AuditObserver::class);
+        Category::observe(AuditObserver::class);
     }
 
     /**
