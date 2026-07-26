@@ -20,13 +20,15 @@ Route::middleware('guest')->group(function () {
         ->name('register');
 
     Route::post('register', [RegisteredUserController::class, 'store'])
-        ->middleware('throttle:5,1'); // Limitar registros a 5 por minuto
+        ->middleware('throttle:5,1') // Limitar registros a 5 por minuto
+        ->name('register.store');
 
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store'])
-        ->middleware('throttle:5,1'); // Limitar logins a 5 por minuto para prevenir brute force
+        ->middleware('throttle:login') // Usar rate limiter personalizado para login
+        ->name('login.store');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');
