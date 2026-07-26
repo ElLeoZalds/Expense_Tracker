@@ -10,8 +10,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
-// Rutas protegidas con autenticación, ownership y rate limiting
-Route::middleware(['auth', 'ownership', 'throttle:60,1'])->group(function () {
+// Rutas protegidas con autenticación y rate limiting
+// Nota: El middleware 'ownership' está disponible como respaldo, pero se recomienda
+// usar $this->authorize() directamente en los controladores para mayor claridad
+Route::middleware(['auth', 'throttle:60,1'])->group(function () {
     Route::resource('expenses', ExpenseController::class);
     Route::resource('categories', CategoryController::class);
 });

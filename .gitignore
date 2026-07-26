@@ -1,33 +1,44 @@
-```php
-# Compiled and build artifacts
-*.php~
-*.phtml~
-
+```
 # Dependencies
 vendor/
+composer.lock
 
 # Logs and temp files
 *.log
 *.tmp
-*.swp
 
 # Environment
 .env
 .env.local
 .env.*
 
-# Editors
+# Editor/IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# Laravel specific
-bootstrap/cache/
-storage/framework/cache/
-storage/logs/
-public/storage/
+# OS
+.DS_Store
+Thumbs.db
 
-# Security
-.htaccess
+# Cache
+.cache/
+*.cache
+
+# Tests
+.coverage
+coverage/
+htmlcov/
+
+# Build artifacts
+dist/
+build/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.a
+*.out
 ```
