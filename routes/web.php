@@ -20,9 +20,13 @@ Route::middleware(['auth', 'throttle:60,1'])->group(function () {
 
     // Operaciones de lectura - rate limit estándar (60/min)
     Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+    Route::get('/expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
     Route::get('/expenses/{expense}', [ExpenseController::class, 'show'])->name('expenses.show');
+    Route::get('/expenses/{expense}/edit', [ExpenseController::class, 'edit'])->name('expenses.edit');
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
     Route::get('/categories/{category}', [CategoryController::class, 'show'])->name('categories.show');
+    Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
 
     // Operaciones de creación/actualización - rate limit más estricto (20/min)
     Route::middleware('throttle:sensitive')->group(function () {
@@ -46,7 +50,10 @@ Route::get('/downloads/{filename}', function (Request $request, string $filename
     $user = Auth::user();
 
     if (! $user) {
-        abort(401, 'Debes iniciar sesión para descargar archivos.');
+        return response()->json([
+            'error' => 'No autorizado',
+            'message' => 'Debes iniciar sesión para descargar archivos.',
+        ], 401);
     }
 
     // Buscar el registro de exportación que pertenece al usuario
@@ -55,7 +62,7 @@ Route::get('/downloads/{filename}', function (Request $request, string $filename
         ->first();
 
     if (! $fileExport) {
-        abort(403, 'No tienes permiso para descargar este archivo.');
+        return response('No tienes permiso para descargar este archivo.', 403);
     }
 
     $path = $fileExport->path;
@@ -66,6 +73,6 @@ Route::get('/downloads/{filename}', function (Request $request, string $filename
     }
 
     return Storage::disk($disk)->download($path, $fileExport->original_filename ?? $filename);
-})->middleware(['auth', 'throttle:20,1'])->name('downloads.expenses');
+})->middleware(['throttle:20,1'])->name('downloads.expenses');
 
 require __DIR__.'/auth.php';

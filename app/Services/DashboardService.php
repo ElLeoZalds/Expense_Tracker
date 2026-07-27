@@ -27,15 +27,15 @@ class DashboardService
         $currentMonthStart = $now->copy()->startOfMonth();
         $currentMonthEnd = $now->copy()->endOfMonth();
         $previousMonthStart = $now->copy()->subMonth()->startOfMonth();
-        $previousMonthEnd = $now->copy()->endOfMonth();
+        $previousMonthEnd = $now->copy()->subMonth()->endOfMonth();
 
-        // 1. Gasto Total Mes Actual - usando where explícito en lugar de whereBelongsTo
-        $currentMonthTotal = Expense::where('user_id', $user->id)
+        // 1. Gasto Total Mes Actual
+        $currentMonthTotal = Expense::query()
             ->whereBetween('date', [$currentMonthStart, $currentMonthEnd])
             ->sum('amount') ?? 0;
 
         // 2. Gasto Total Mes Anterior
-        $previousMonthTotal = Expense::where('user_id', $user->id)
+        $previousMonthTotal = Expense::query()
             ->whereBetween('date', [$previousMonthStart, $previousMonthEnd])
             ->sum('amount') ?? 0;
 
@@ -48,7 +48,7 @@ class DashboardService
         }
 
         // 3. Gastos por Categoría (Para Gráfico de Dona)
-        $expensesByCategory = Expense::where('user_id', $user->id)
+        $expensesByCategory = Expense::query()
             ->whereBetween('date', [$currentMonthStart, $currentMonthEnd])
             ->join('categories', 'expenses.category_id', '=', 'categories.id')
             ->select('categories.name', 'categories.color', 'categories.icon', DB::raw('SUM(expenses.amount) as total'))
@@ -64,7 +64,7 @@ class DashboardService
 
         // 4. Evolución Diaria (Para Gráfico de Líneas - últimos 30 días o mes actual)
         // Usamos el mes actual día a día
-        $dailyExpenses = Expense::where('user_id', $user->id)
+        $dailyExpenses = Expense::query()
             ->whereBetween('date', [$currentMonthStart, $currentMonthEnd])
             ->select(DB::raw('DATE(date) as date'), DB::raw('SUM(amount) as total'))
             ->groupBy('date')

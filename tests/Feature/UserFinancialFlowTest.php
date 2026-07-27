@@ -84,9 +84,8 @@ class UserFinancialFlowTest extends TestCase
         // Si usas Resource Controller estándar:
         $responseOther = $this->actingAs($otherUser)->get(route('expenses.show', $expenseId));
 
-        // Con GlobalScope activo, si el usuario no es el dueño, el modelo no se encuentra (404).
-        // Esto es más seguro que un 403 porque no revela la existencia del registro.
-        $responseOther->assertNotFound();
+        // La policy de acceso bloquea el recurso con 403 sin exponer detalles internos.
+        $responseOther->assertForbidden();
 
         // Intentar actualizar
         $responseUpdate = $this->actingAs($otherUser)->put(route('expenses.update', $expenseId), [
@@ -94,9 +93,8 @@ class UserFinancialFlowTest extends TestCase
             'amount' => 9999,
         ]);
 
-        // Debería ser 404 (no encontrado) o 403 (prohibido), pero nunca 200
-        // En este caso, al usar find() en el controller con GlobalScope, será 404
-        $responseUpdate->assertNotFound();
+        // Debería ser 403 (prohibido), pero nunca 200
+        $responseUpdate->assertForbidden();
 
         // Verificar que el dato NO cambió en la BD
         $this->assertDatabaseHas('expenses', [

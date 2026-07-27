@@ -67,4 +67,16 @@ class Category extends Model
     {
         return $this->hasMany(Expense::class);
     }
+
+    /**
+     * Resolve route bindings without the user scope so policies can return 403s.
+     */
+    public function resolveRouteBinding($value, $field = null): ?Model
+    {
+        $field ??= $this->getRouteKeyName();
+
+        return $this->withoutGlobalScopes()
+            ->where($field, $value)
+            ->first();
+    }
 }

@@ -64,4 +64,16 @@ class Expense extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Resolve route bindings without the user scope so policies can return 403s.
+     */
+    public function resolveRouteBinding($value, $field = null): ?Model
+    {
+        $field ??= $this->getRouteKeyName();
+
+        return $this->withoutGlobalScopes()
+            ->where($field, $value)
+            ->first();
+    }
 }
